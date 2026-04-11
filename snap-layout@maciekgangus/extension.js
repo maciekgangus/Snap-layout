@@ -258,7 +258,10 @@ export default class SnapLayoutExtension extends Extension {
             if (win === excludeWin) continue;
             if (win.get_monitor() !== mon) continue;
             if (win.get_window_type() !== Meta.WindowType.NORMAL) continue;
-            if (win.is_minimized()) continue;
+            // GNOME 49 changed is_minimized() to a property; handle both
+            const minimized = typeof win.is_minimized === 'function'
+                ? win.is_minimized() : win.is_minimized;
+            if (minimized) continue;
 
             const r       = win.get_frame_rect();
             const winEdge = side === 'left' ? r.x : r.x + r.width;
