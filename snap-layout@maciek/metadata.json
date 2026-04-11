@@ -1,0 +1,9 @@
+{
+  "name": "Snap Layout",
+  "description": "Keyboard-driven window snapping: halves, thirds, two-thirds and multi-monitor support. No unsafe-mode required.",
+  "uuid": "snap-layout@maciek",
+  "version": 1,
+  "shell-version": ["45", "46", "47", "48", "49"],
+  "url": "https://github.com/maciek/snap-layout",
+  "settings-schema": "org.gnome.shell.extensions.snap-layout"
+}

@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schemalist>
+  <schema id="org.gnome.shell.extensions.snap-layout"
+          path="/org/gnome/shell/extensions/snap-layout/">
+
+    <key name="snap-left-half" type="as">
+      <default><![CDATA[['<Super>Left']]]></default>
+      <summary>Snap: left half</summary>
+    </key>
+    <key name="snap-right-half" type="as">
+      <default><![CDATA[['<Super>Right']]]></default>
+      <summary>Snap: right half</summary>
+    </key>
+    <key name="snap-maximize" type="as">
+      <default><![CDATA[['<Super>Up']]]></default>
+      <summary>Snap: maximize</summary>
+    </key>
+    <key name="snap-restore" type="as">
+      <default><![CDATA[['<Super>Down']]]></default>
+      <summary>Snap: restore / unmaximize</summary>
+    </key>
+    <key name="snap-left-third" type="as">
+      <default><![CDATA[['<Super><Alt>Left']]]></default>
+      <summary>Snap: left 1/3</summary>
+    </key>
+    <key name="snap-right-third" type="as">
+      <default><![CDATA[['<Super><Alt>Right']]]></default>
+      <summary>Snap: right 1/3</summary>
+    </key>
+    <key name="snap-left-two-thirds" type="as">
+      <default><![CDATA[['<Super><Control>Left']]]></default>
+      <summary>Snap: left 2/3</summary>
+    </key>
+    <key name="snap-right-two-thirds" type="as">
+      <default><![CDATA[['<Super><Control>Right']]]></default>
+      <summary>Snap: right 2/3</summary>
+    </key>
+    <key name="move-monitor-left" type="as">
+      <default><![CDATA[['<Super><Shift>Left']]]></default>
+      <summary>Move window to left monitor</summary>
+    </key>
+    <key name="move-monitor-right" type="as">
+      <default><![CDATA[['<Super><Shift>Right']]]></default>
+      <summary>Move window to right monitor</summary>
+    </key>
+    <key name="focus-monitor-left" type="as">
+      <default><![CDATA[['<Super><Shift><Alt>Left']]]></default>
+      <summary>Focus left monitor</summary>
+    </key>
+    <key name="focus-monitor-right" type="as">
+      <default><![CDATA[['<Super><Shift><Alt>Right']]]></default>
+      <summary>Focus right monitor</summary>
+    </key>
+
+  </schema>
+</schemalist>
