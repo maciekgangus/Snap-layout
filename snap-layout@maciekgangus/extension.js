@@ -1,6 +1,7 @@
 /**
  * Snap Layout — GNOME Shell Extension
  * Keyboard-driven window snapping: halves, thirds, two-thirds, multi-monitor.
+ * Linked resize: resizing a snapped window automatically adjusts its neighbor.
  *
  * Compatible: GNOME Shell 45–49 | Wayland & X11
  * No unsafe-mode required.
@@ -36,10 +37,12 @@ export default class SnapLayoutExtension extends Extension {
         this._settings = this.getSettings();
         this._keybindings = [];
         this._bindKeys();
+        this._setupLinkedResize();
     }
 
     disable() {
         this._unbindKeys();
+        this._teardownLinkedResize();
         this._settings = null;
     }
 
@@ -142,6 +145,141 @@ export default class SnapLayoutExtension extends Extension {
         const cy   = geom.y + Math.round(geom.height / 2);
 
         Clutter.get_default_backend().get_default_seat().warp_pointer(cx, cy);
+    }
+
+    // ── Linked resize ───────────────────────────────────────────────────────
+    //
+    // When two windows share an edge (e.g. 2/3 left + 1/3 right), manually
+    // resizing one will automatically resize the neighbor to fill the gap.
+    //
+    // How it works:
+    //   1. Store the frame rect for every normal window.
+    //   2. On size-changed, compare with the stored rect to find which edge moved.
+    //   3. Find another window on the same monitor whose opposite edge is at
+    //      the same position (within SLACK pixels).
+    //   4. Resize that neighbor so it fills the remaining space.
+    //   5. _linkGuard prevents the neighbor's own size-changed from looping back.
+
+    _setupLinkedResize() {
+        this._prevGeom  = new Map(); // Meta.Window → [x, y, w, h]
+        this._winConns  = new Map(); // Meta.Window → [signalId, ...]
+        this._linkGuard = false;
+
+        this._displayCreatedId = global.display.connect(
+            'window-created',
+            (_, win) => this._watchWindow(win),
+        );
+
+        for (const win of global.display.list_all_windows())
+            this._watchWindow(win);
+    }
+
+    _watchWindow(win) {
+        if (this._winConns.has(win)) return;
+        if (win.get_window_type() !== Meta.WindowType.NORMAL) return;
+
+        const r = win.get_frame_rect();
+        this._prevGeom.set(win, [r.x, r.y, r.width, r.height]);
+
+        const sizeId      = win.connect('size-changed', () => this._onResize(win));
+        const unmanagedId = win.connect('unmanaged',    () => this._unwatchWindow(win));
+        this._winConns.set(win, [sizeId, unmanagedId]);
+    }
+
+    _unwatchWindow(win) {
+        const ids = this._winConns.get(win);
+        if (!ids) return;
+        for (const id of ids) {
+            try { win.disconnect(id); } catch (_) {}
+        }
+        this._winConns.delete(win);
+        this._prevGeom.delete(win);
+    }
+
+    _onResize(win) {
+        if (this._linkGuard) return;
+
+        const prev = this._prevGeom.get(win);
+        const r    = win.get_frame_rect();
+        const cur  = [r.x, r.y, r.width, r.height];
+
+        this._prevGeom.set(win, cur);
+        if (!prev) return;
+
+        const [px, , pw] = prev;
+        const [cx, , cw] = cur;
+
+        // Pure move with no size change — nothing to link
+        if (pw === cw) return;
+
+        const prevRight  = px + pw;
+        const curRight   = cx + cw;
+        const leftMoved  = Math.abs(cx - px) > 2;
+        const rightMoved = Math.abs(curRight - prevRight) > 2;
+
+        if (rightMoved && !leftMoved)
+            // Right edge dragged → neighbor has its LEFT edge at prevRight
+            this._nudgeNeighbor(win, prevRight, curRight, 'left');
+        else if (leftMoved && !rightMoved)
+            // Left edge dragged → neighbor has its RIGHT edge at px
+            this._nudgeNeighbor(win, px, cx, 'right');
+    }
+
+    /**
+     * Find a window on the same monitor whose `side` edge was at `oldEdge`
+     * and resize it so that edge moves to `newEdge`.
+     *
+     * @param {Meta.Window}    changedWin  the window that was resized
+     * @param {number}         oldEdge     previous shared-edge position (px)
+     * @param {number}         newEdge     new shared-edge position (px)
+     * @param {'left'|'right'} side        which edge of the neighbor to match
+     */
+    _nudgeNeighbor(changedWin, oldEdge, newEdge, side) {
+        const SLACK = 8; // px tolerance — accounts for rounding
+        const mon   = changedWin.get_monitor();
+
+        for (const win of global.display.list_all_windows()) {
+            if (win === changedWin) continue;
+            if (win.get_monitor() !== mon) continue;
+            if (win.get_window_type() !== Meta.WindowType.NORMAL) continue;
+            if (win.is_minimized()) continue;
+
+            const r    = win.get_frame_rect();
+            const edge = side === 'left' ? r.x : r.x + r.width;
+
+            if (Math.abs(edge - oldEdge) > SLACK) continue;
+
+            // Shared edge found — compute new geometry for this neighbor
+            let nx = r.x, nw = r.width;
+            if (side === 'left') {
+                nx = newEdge;
+                nw = (r.x + r.width) - newEdge;
+            } else {
+                nw = newEdge - r.x;
+            }
+
+            if (nw < 80) return; // refuse to crush below a usable width
+
+            this._linkGuard = true;
+            try {
+                win.move_resize_frame(false, nx, r.y, nw, r.height);
+                const nr = win.get_frame_rect();
+                this._prevGeom.set(win, [nr.x, nr.y, nr.width, nr.height]);
+            } finally {
+                this._linkGuard = false;
+            }
+            break;
+        }
+    }
+
+    _teardownLinkedResize() {
+        if (this._displayCreatedId) {
+            global.display.disconnect(this._displayCreatedId);
+            this._displayCreatedId = null;
+        }
+        for (const win of [...this._winConns.keys()])
+            this._unwatchWindow(win);
+        this._prevGeom.clear();
     }
 
     // ── Keybinding registration ──────────────────────────────────────────────
