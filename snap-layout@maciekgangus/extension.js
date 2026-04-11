@@ -33,6 +33,16 @@ function _unmaximize(win) {
         : win.unmaximize();
 }
 
+// GNOME 49 converted several Meta.Window methods to plain properties.
+// Call as function if still a function, otherwise read as property.
+function _isMaximized(win) {
+    return typeof win.is_maximized === 'function' ? win.is_maximized() : win.is_maximized;
+}
+
+function _isMinimized(win) {
+    return typeof win.is_minimized === 'function' ? win.is_minimized() : win.is_minimized;
+}
+
 export default class SnapLayoutExtension extends Extension {
     enable() {
         this._settings = this.getSettings();
@@ -67,7 +77,7 @@ export default class SnapLayoutExtension extends Extension {
         // Un-maximize before resizing — move_resize_frame is ignored on a
         // maximized window. Both calls are synchronous compositor ops and
         // can be issued back-to-back safely.
-        if (win.is_maximized())
+        if (_isMaximized(win))
             _unmaximize(win);
 
         const wa = win.get_work_area_current_monitor();
@@ -98,7 +108,7 @@ export default class SnapLayoutExtension extends Extension {
     _snapRestore() {
         const win = this._win();
         if (!win) return;
-        if (win.is_maximized()) {
+        if (_isMaximized(win)) {
             _unmaximize(win);
         } else {
             // Not maximized → snap to a comfortable centred size
@@ -258,10 +268,7 @@ export default class SnapLayoutExtension extends Extension {
             if (win === excludeWin) continue;
             if (win.get_monitor() !== mon) continue;
             if (win.get_window_type() !== Meta.WindowType.NORMAL) continue;
-            // GNOME 49 changed is_minimized() to a property; handle both
-            const minimized = typeof win.is_minimized === 'function'
-                ? win.is_minimized() : win.is_minimized;
-            if (minimized) continue;
+            if (_isMinimized(win)) continue;
 
             const r       = win.get_frame_rect();
             const winEdge = side === 'left' ? r.x : r.x + r.width;
