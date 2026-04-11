@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-**Snap Layout** (`snap-layout@maciek`) is a GNOME Shell extension providing keyboard-driven window snapping — halves, thirds, two-thirds, and multi-monitor operations. No unsafe-mode required; it uses official Mutter/Shell APIs only.
+**Snap Layout** (`snap-layout@maciekgangus`) is a GNOME Shell extension providing keyboard-driven window snapping — halves, thirds, two-thirds, and multi-monitor operations. No unsafe-mode required; it uses official Mutter/Shell APIs only.
 
 Targets GNOME Shell 45–49, Wayland and X11.
 
@@ -18,19 +18,19 @@ chmod +x install.sh
 After first install, log out/in (Wayland). Then:
 
 ```bash
-gnome-extensions enable snap-layout@maciek
+gnome-extensions enable snap-layout@maciekgangus
 ```
 
 Reload without logging out (disable/enable cycle — does not work on Wayland for JS changes):
 
 ```bash
-gnome-extensions disable snap-layout@maciek && gnome-extensions enable snap-layout@maciek
+gnome-extensions disable snap-layout@maciekgangus && gnome-extensions enable snap-layout@maciekgangus
 ```
 
 Open preferences GUI:
 
 ```bash
-gnome-extensions prefs snap-layout@maciek
+gnome-extensions prefs snap-layout@maciekgangus
 ```
 
 ## Debugging
@@ -55,7 +55,7 @@ There are only two JS files:
 **Any change to this file requires recompiling schemas** (re-running `./install.sh` handles this automatically):
 
 ```bash
-glib-compile-schemas ~/.local/share/gnome-shell/extensions/snap-layout@maciek/schemas/
+glib-compile-schemas ~/.local/share/gnome-shell/extensions/snap-layout@maciekgangus/schemas/
 ```
 
 Adding a new action requires:

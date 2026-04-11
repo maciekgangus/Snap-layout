@@ -39,7 +39,7 @@ Compatible with GNOME Shell 45–49 on Wayland and X11.
 ### From source
 
 ```bash
-git clone https://github.com/maciek/snap-layout
+git clone https://github.com/maciekgangus/Snap-layout
 cd snap-layout
 chmod +x install.sh
 ./install.sh
@@ -48,7 +48,7 @@ chmod +x install.sh
 Log out and log back in (Wayland requires a full session restart), then:
 
 ```bash
-gnome-extensions enable snap-layout@maciek
+gnome-extensions enable snap-layout@maciekgangus
 ```
 
 ### From extensions.gnome.org
@@ -60,7 +60,7 @@ Visit the extension page and click **Install**.
 Open the preferences window:
 
 ```bash
-gnome-extensions prefs snap-layout@maciek
+gnome-extensions prefs snap-layout@maciekgangus
 ```
 
 Or use `gsettings` directly:
@@ -82,8 +82,8 @@ gsettings reset-recursively org.gnome.shell.extensions.snap-layout
 ## Uninstalling
 
 ```bash
-gnome-extensions disable snap-layout@maciek
-rm -rf ~/.local/share/gnome-shell/extensions/snap-layout@maciek
+gnome-extensions disable snap-layout@maciekgangus
+rm -rf ~/.local/share/gnome-shell/extensions/snap-layout@maciekgangus
 ```
 
 ## Debugging
@@ -93,14 +93,14 @@ rm -rf ~/.local/share/gnome-shell/extensions/snap-layout@maciek
 journalctl -f /usr/bin/gnome-shell | grep -i "snap\|Error"
 
 # Restart extension without logging out (disable/enable cycle)
-gnome-extensions disable snap-layout@maciek
-gnome-extensions enable  snap-layout@maciek
+gnome-extensions disable snap-layout@maciekgangus
+gnome-extensions enable  snap-layout@maciekgangus
 ```
 
 ## Project structure
 
 ```
-snap-layout@maciek/
+snap-layout@maciekgangus/
 ├── metadata.json      # UUID, name, compatible GNOME versions
 ├── extension.js       # Core logic — keybindings and window operations
 ├── prefs.js           # Preferences UI (GTK4 + Libadwaita)

@@ -3,7 +3,7 @@
 # Usage: ./install.sh
 set -euo pipefail
 
-UUID="snap-layout@maciek"
+UUID="snap-layout@maciekgangus"
 SRC="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/$UUID"
 DST="$HOME/.local/share/gnome-shell/extensions/$UUID"
 
