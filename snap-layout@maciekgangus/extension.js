@@ -12,6 +12,7 @@
 import { Extension } from 'resource:///org/gnome/shell/extensions/extension.js';
 import * as Main from 'resource:///org/gnome/shell/ui/main.js';
 import Clutter from 'gi://Clutter';
+import Gio from 'gi://Gio';
 import GLib from 'gi://GLib';
 import Meta from 'gi://Meta';
 import Shell from 'gi://Shell';
@@ -219,6 +220,104 @@ export default class SnapLayoutExtension extends Extension {
         }
     }
 
+    // ── Layout save / restore ───────────────────────────────────────────────
+
+    _monitorKey(monitorIdx) {
+        const g = global.display.get_monitor_geometry(monitorIdx);
+        return `${g.width}x${g.height}@${g.x},${g.y}`;
+    }
+
+    _loadLayouts() {
+        try {
+            return JSON.parse(this._settings.get_string('layouts'));
+        } catch (_) {
+            return {};
+        }
+    }
+
+    _saveLayout(slot) {
+        const mon = global.display.get_current_monitor();
+        const ws  = global.display.get_workspace_manager().get_active_workspace();
+        const wa  = ws.get_work_area_for_monitor(mon);
+
+        const entries = global.display.list_all_windows()
+            .filter(w =>
+                w.get_monitor()     === mon &&
+                w.get_window_type() === Meta.WindowType.NORMAL &&
+                !_isMinimized(w) &&
+                (w.is_on_all_workspaces() || w.get_workspace() === ws))
+            .map(w => {
+                const r = w.get_frame_rect();
+                return { x: r.x - wa.x, y: r.y - wa.y, w: r.width, h: r.height };
+            });
+
+        const all = this._loadLayouts();
+        (all[this._monitorKey(mon)] ??= {})[slot] = entries;
+        this._settings.set_string('layouts', JSON.stringify(all));
+
+        const n = entries.length;
+        Main.osdWindowManager.show(
+            mon,
+            Gio.ThemedIcon.new('view-grid-symbolic'),
+            `Layout ${slot} saved  (${n} window${n !== 1 ? 's' : ''})`,
+            -1,
+        );
+    }
+
+    _restoreLayout(slot) {
+        const mon = global.display.get_current_monitor();
+        const all = this._loadLayouts();
+        const saved = all[this._monitorKey(mon)]?.[slot];
+
+        if (!saved?.length) {
+            Main.osdWindowManager.show(
+                mon,
+                Gio.ThemedIcon.new('action-unavailable-symbolic'),
+                `Slot ${slot} is empty`,
+                -1,
+            );
+            return;
+        }
+
+        const ws = global.display.get_workspace_manager().get_active_workspace();
+        const wa = ws.get_work_area_for_monitor(mon);
+
+        const windows = global.display.list_all_windows().filter(w =>
+            w.get_monitor()     === mon &&
+            w.get_window_type() === Meta.WindowType.NORMAL &&
+            !_isMinimized(w) &&
+            (w.is_on_all_workspaces() || w.get_workspace() === ws));
+
+        // Proximity matching: each saved rect claims the nearest unmatched window.
+        const matched = new Set();
+        for (const rect of saved) {
+            const cx = wa.x + rect.x + rect.w / 2;
+            const cy = wa.y + rect.y + rect.h / 2;
+
+            let best = null, bestDist = Infinity;
+            for (const w of windows) {
+                if (matched.has(w)) continue;
+                const r = w.get_frame_rect();
+                const dist = Math.hypot(r.x + r.width  / 2 - cx,
+                                        r.y + r.height / 2 - cy);
+                if (dist < bestDist) { bestDist = dist; best = w; }
+            }
+
+            if (!best) continue;
+            matched.add(best);
+            if (_isMaximized(best)) _unmaximize(best);
+            best.move_resize_frame(false, wa.x + rect.x, wa.y + rect.y, rect.w, rect.h);
+            this._animateSnap(best);
+        }
+
+        Main.osdWindowManager.show(
+            mon,
+            Gio.ThemedIcon.new('view-grid-symbolic'),
+            `Layout ${slot} restored`,
+            -1,
+        );
+    }
+
     // ── Monitor actions ─────────────────────────────────────────────────────
 
     /**
@@ -420,6 +519,12 @@ export default class SnapLayoutExtension extends Extension {
             ['snap-top-right',        () => this._snapTopRight()],
             ['snap-bottom-left',      () => this._snapBottomLeft()],
             ['snap-bottom-right',     () => this._snapBottomRight()],
+            ['layout-save-1',         () => this._saveLayout(1)],
+            ['layout-save-2',         () => this._saveLayout(2)],
+            ['layout-save-3',         () => this._saveLayout(3)],
+            ['layout-restore-1',      () => this._restoreLayout(1)],
+            ['layout-restore-2',      () => this._restoreLayout(2)],
+            ['layout-restore-3',      () => this._restoreLayout(3)],
             ['move-monitor-left',     () => this._moveToMonitor('left')],
             ['move-monitor-right',    () => this._moveToMonitor('right')],
             ['focus-monitor-left',    () => this._focusMonitor('left')],

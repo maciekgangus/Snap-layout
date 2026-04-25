@@ -82,5 +82,36 @@
       <description>When enabled, Super+Left and Super+Right cycle through half, third, and two-thirds on repeated presses.</description>
     </key>
 
+    <key name="layouts" type="s">
+      <default>'{}'</default>
+      <summary>Saved window layouts</summary>
+      <description>JSON: per-monitor, per-slot arrays of window geometry. Keyed by monitor resolution and position.</description>
+    </key>
+
+    <key name="layout-save-1" type="as">
+      <default><![CDATA[['<Super><Control><Shift>1']]]></default>
+      <summary>Save layout to slot 1</summary>
+    </key>
+    <key name="layout-save-2" type="as">
+      <default><![CDATA[['<Super><Control><Shift>2']]]></default>
+      <summary>Save layout to slot 2</summary>
+    </key>
+    <key name="layout-save-3" type="as">
+      <default><![CDATA[['<Super><Control><Shift>3']]]></default>
+      <summary>Save layout to slot 3</summary>
+    </key>
+    <key name="layout-restore-1" type="as">
+      <default><![CDATA[['<Super><Control>1']]]></default>
+      <summary>Restore layout from slot 1</summary>
+    </key>
+    <key name="layout-restore-2" type="as">
+      <default><![CDATA[['<Super><Control>2']]]></default>
+      <summary>Restore layout from slot 2</summary>
+    </key>
+    <key name="layout-restore-3" type="as">
+      <default><![CDATA[['<Super><Control>3']]]></default>
+      <summary>Restore layout from slot 3</summary>
+    </key>
+
   </schema>
 </schemalist>

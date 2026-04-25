@@ -1,5 +1,15 @@
 # Changelog
 
+## [1.3.0] — 2026-04-25
+
+### Added
+- Layout save/restore — 3 slots per monitor, independently keyed by monitor geometry
+- `Super+Ctrl+Shift+1/2/3` saves current window arrangement on active monitor
+- `Super+Ctrl+1/2/3` restores — proximity-matches open windows to saved positions and animates each one
+- OSD notification (GNOME volume-style flash) on save and restore
+- Slots are empty by default; attempting to restore an empty slot shows "Slot N is empty"
+- All 6 shortcuts configurable in preferences under new Layouts groups
+
 ## [1.2.0] — 2026-04-25
 
 ### Added

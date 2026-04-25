@@ -223,6 +223,31 @@ export default class SnapLayoutPreferences extends ExtensionPreferences {
             }
         }
 
+        // ── Layouts ──────────────────────────────────────────────────────────
+        const layoutSaveGroup = new Adw.PreferencesGroup({
+            title:       'Layouts — Save',
+            description: 'Snapshots current window positions on the active monitor.',
+        });
+        page.add(layoutSaveGroup);
+        for (const [key, label, hint] of [
+            ['layout-save-1', 'Save to slot 1', 'Super + Ctrl + Shift + 1'],
+            ['layout-save-2', 'Save to slot 2', 'Super + Ctrl + Shift + 2'],
+            ['layout-save-3', 'Save to slot 3', 'Super + Ctrl + Shift + 3'],
+        ])
+            layoutSaveGroup.add(new ShortcutRow(settings, key, label, `Default: ${hint}`));
+
+        const layoutRestoreGroup = new Adw.PreferencesGroup({
+            title:       'Layouts — Restore',
+            description: 'Moves open windows back into saved positions using proximity matching.',
+        });
+        page.add(layoutRestoreGroup);
+        for (const [key, label, hint] of [
+            ['layout-restore-1', 'Restore slot 1', 'Super + Ctrl + 1'],
+            ['layout-restore-2', 'Restore slot 2', 'Super + Ctrl + 2'],
+            ['layout-restore-3', 'Restore slot 3', 'Super + Ctrl + 3'],
+        ])
+            layoutRestoreGroup.add(new ShortcutRow(settings, key, label, `Default: ${hint}`));
+
         // ── Experimental features ────────────────────────────────────────────
         const experimentalGroup = new Adw.PreferencesGroup({
             title:       'Experimental',
@@ -270,6 +295,12 @@ export default class SnapLayoutPreferences extends ExtensionPreferences {
             settings.reset('focus-monitor-left');
             settings.reset('focus-monitor-right');
             settings.reset('cycle-snapping');
+            settings.reset('layout-save-1');
+            settings.reset('layout-save-2');
+            settings.reset('layout-save-3');
+            settings.reset('layout-restore-1');
+            settings.reset('layout-restore-2');
+            settings.reset('layout-restore-3');
         });
         resetRow.add_suffix(resetBtn);
         resetGroup.add(resetRow);
