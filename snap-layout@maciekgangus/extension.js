@@ -48,10 +48,23 @@ export default class SnapLayoutExtension extends Extension {
     static _ANIM_SCALE_START   = 0.88;
     static _ANIM_OPACITY_START = 220;
 
+    // Cycle-snap sequences and their fraction lookup table.
+    static _CYCLE_LEFT  = ['left-half', 'left-third', 'left-two-thirds'];
+    static _CYCLE_RIGHT = ['right-half', 'right-third', 'right-two-thirds'];
+    static _SNAP_FRACS  = {
+        'left-half':        [0,   0, 1/2, 1],
+        'left-third':       [0,   0, 1/3, 1],
+        'left-two-thirds':  [0,   0, 2/3, 1],
+        'right-half':       [1/2, 0, 1/2, 1],
+        'right-third':      [2/3, 0, 1/3, 1],
+        'right-two-thirds': [1/3, 0, 2/3, 1],
+    };
+
     enable() {
         this._settings = this.getSettings();
         this._keybindings = [];
         this._animatedActors = new Set();
+        this._snapHistory = new WeakMap();
         this._bindKeys();
         this._setupLinkedResize();
     }
@@ -69,6 +82,7 @@ export default class SnapLayoutExtension extends Extension {
             }
         }
         this._animatedActors = null;
+        this._snapHistory = null;
         this._settings = null;
     }
 
@@ -80,12 +94,13 @@ export default class SnapLayoutExtension extends Extension {
 
     /**
      * Snap focused window to a fraction of its current monitor's work area.
-     * @param {number} xFrac  — left edge as fraction of work area width  (0–1)
-     * @param {number} yFrac  — top  edge as fraction of work area height (0–1)
-     * @param {number} wFrac  — width  as fraction of work area width     (0–1)
-     * @param {number} hFrac  — height as fraction of work area height    (0–1)
+     * @param {number} xFrac      — left edge as fraction of work area width  (0–1)
+     * @param {number} yFrac      — top  edge as fraction of work area height (0–1)
+     * @param {number} wFrac      — width  as fraction of work area width     (0–1)
+     * @param {number} hFrac      — height as fraction of work area height    (0–1)
+     * @param {string|null} historyKey — cycle-snap key to record, or null to skip
      */
-    _snap(xFrac, yFrac, wFrac, hFrac) {
+    _snap(xFrac, yFrac, wFrac, hFrac, historyKey = null) {
         const win = this._win();
         if (!win) return;
 
@@ -104,7 +119,29 @@ export default class SnapLayoutExtension extends Extension {
             Math.round(wa.height * hFrac),
         );
 
+        if (historyKey)
+            this._snapHistory.set(win, { key: historyKey, monitor: win.get_monitor() });
+
         this._animateSnap(win);
+    }
+
+    // When cycle-snapping is on, pressing the left/right half shortcut repeatedly
+    // advances through half → third → two-thirds → half … for that window.
+    // Direct third/two-thirds shortcuts still work and also update the history,
+    // so cycling picks up from wherever you currently are.
+    _cycleSnap(sequence) {
+        const win = this._win();
+        if (!win) return;
+
+        const last = this._snapHistory.get(win);
+        const curMonitor = win.get_monitor();
+
+        let nextIdx = 0;
+        if (last?.monitor === curMonitor && sequence.includes(last.key))
+            nextIdx = (sequence.indexOf(last.key) + 1) % sequence.length;
+
+        const key = sequence[nextIdx];
+        this._snap(...SnapLayoutExtension._SNAP_FRACS[key], key);
     }
 
     _animateSnap(win) {
@@ -139,18 +176,31 @@ export default class SnapLayoutExtension extends Extension {
 
     // ── Snap actions ────────────────────────────────────────────────────────
 
-    _snapLeftHalf()        { this._snap(0,   0,   1/2, 1  ); }
-    _snapRightHalf()       { this._snap(1/2, 0,   1/2, 1  ); }
-    _snapTopHalf()         { this._snap(0,   0,   1,   1/2); }
-    _snapBottomHalf()      { this._snap(0,   1/2, 1,   1/2); }
-    _snapLeftThird()       { this._snap(0,   0,   1/3, 1  ); }
-    _snapRightThird()      { this._snap(2/3, 0,   1/3, 1  ); }
-    _snapLeftTwoThirds()   { this._snap(0,   0,   2/3, 1  ); }
-    _snapRightTwoThirds()  { this._snap(1/3, 0,   2/3, 1  ); }
-    _snapTopLeft()         { this._snap(0,   0,   1/2, 1/2); }
-    _snapTopRight()        { this._snap(1/2, 0,   1/2, 1/2); }
-    _snapBottomLeft()      { this._snap(0,   1/2, 1/2, 1/2); }
-    _snapBottomRight()     { this._snap(1/2, 1/2, 1/2, 1/2); }
+    _snapLeftHalf() {
+        if (this._settings.get_boolean('cycle-snapping'))
+            return this._cycleSnap(SnapLayoutExtension._CYCLE_LEFT);
+        this._snap(0,   0, 1/2, 1, 'left-half');
+    }
+
+    _snapRightHalf() {
+        if (this._settings.get_boolean('cycle-snapping'))
+            return this._cycleSnap(SnapLayoutExtension._CYCLE_RIGHT);
+        this._snap(1/2, 0, 1/2, 1, 'right-half');
+    }
+
+    // Direct-access shortcuts update history so cycle picks up from current position.
+    _snapLeftThird()      { this._snap(0,   0,   1/3, 1, 'left-third'); }
+    _snapRightThird()     { this._snap(2/3, 0,   1/3, 1, 'right-third'); }
+    _snapLeftTwoThirds()  { this._snap(0,   0,   2/3, 1, 'left-two-thirds'); }
+    _snapRightTwoThirds() { this._snap(1/3, 0,   2/3, 1, 'right-two-thirds'); }
+
+    // Top/bottom/quarter actions — not part of any cycle.
+    _snapTopHalf()        { this._snap(0,   0,   1,   1/2); }
+    _snapBottomHalf()     { this._snap(0,   1/2, 1,   1/2); }
+    _snapTopLeft()        { this._snap(0,   0,   1/2, 1/2); }
+    _snapTopRight()       { this._snap(1/2, 0,   1/2, 1/2); }
+    _snapBottomLeft()     { this._snap(0,   1/2, 1/2, 1/2); }
+    _snapBottomRight()    { this._snap(1/2, 1/2, 1/2, 1/2); }
 
     _snapMaximize() {
         const win = this._win();

@@ -76,5 +76,11 @@
       <summary>Focus right monitor</summary>
     </key>
 
+    <key name="cycle-snapping" type="b">
+      <default>false</default>
+      <summary>Cycle snap positions</summary>
+      <description>When enabled, Super+Left and Super+Right cycle through half, third, and two-thirds on repeated presses.</description>
+    </key>
+
   </schema>
 </schemalist>

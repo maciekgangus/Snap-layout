@@ -223,6 +223,20 @@ export default class SnapLayoutPreferences extends ExtensionPreferences {
             }
         }
 
+        // ── Experimental features ────────────────────────────────────────────
+        const experimentalGroup = new Adw.PreferencesGroup({
+            title:       'Experimental',
+            description: 'Beta features — behaviour may change in future versions.',
+        });
+        page.add(experimentalGroup);
+
+        const cycleRow = new Adw.SwitchRow({
+            title:    'Cycle snapping',
+            subtitle: 'Super+← / Super+→ cycle through half → third → two-thirds on repeated presses',
+        });
+        settings.bind('cycle-snapping', cycleRow, 'active', Gio.SettingsBindFlags.DEFAULT);
+        experimentalGroup.add(cycleRow);
+
         // ── Reset button ─────────────────────────────────────────────────────
         const resetGroup = new Adw.PreferencesGroup();
         page.add(resetGroup);
@@ -255,6 +269,7 @@ export default class SnapLayoutPreferences extends ExtensionPreferences {
             settings.reset('move-monitor-right');
             settings.reset('focus-monitor-left');
             settings.reset('focus-monitor-right');
+            settings.reset('cycle-snapping');
         });
         resetRow.add_suffix(resetBtn);
         resetGroup.add(resetRow);

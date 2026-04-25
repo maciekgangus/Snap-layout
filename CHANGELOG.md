@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.2.0] — 2026-04-25
+
+### Added
+- Cycle snapping (beta): Super+← / Super+→ cycle through half → third → two-thirds on repeated presses
+  - Off by default; toggle in Preferences → Experimental
+  - Cycle history is per-window and per-monitor; direct shortcut presses update history too
+
 ## [1.1.0] — 2026-04-25
 
 ### Added
