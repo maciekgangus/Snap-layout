@@ -139,12 +139,18 @@ export default class SnapLayoutExtension extends Extension {
 
     // ── Snap actions ────────────────────────────────────────────────────────
 
-    _snapLeftHalf()       { this._snap(0,   0, 1 / 2, 1); }
-    _snapRightHalf()      { this._snap(1/2, 0, 1 / 2, 1); }
-    _snapLeftThird()      { this._snap(0,   0, 1 / 3, 1); }
-    _snapRightThird()     { this._snap(2/3, 0, 1 / 3, 1); }
-    _snapLeftTwoThirds()  { this._snap(0,   0, 2 / 3, 1); }
-    _snapRightTwoThirds() { this._snap(1/3, 0, 2 / 3, 1); }
+    _snapLeftHalf()        { this._snap(0,   0,   1/2, 1  ); }
+    _snapRightHalf()       { this._snap(1/2, 0,   1/2, 1  ); }
+    _snapTopHalf()         { this._snap(0,   0,   1,   1/2); }
+    _snapBottomHalf()      { this._snap(0,   1/2, 1,   1/2); }
+    _snapLeftThird()       { this._snap(0,   0,   1/3, 1  ); }
+    _snapRightThird()      { this._snap(2/3, 0,   1/3, 1  ); }
+    _snapLeftTwoThirds()   { this._snap(0,   0,   2/3, 1  ); }
+    _snapRightTwoThirds()  { this._snap(1/3, 0,   2/3, 1  ); }
+    _snapTopLeft()         { this._snap(0,   0,   1/2, 1/2); }
+    _snapTopRight()        { this._snap(1/2, 0,   1/2, 1/2); }
+    _snapBottomLeft()      { this._snap(0,   1/2, 1/2, 1/2); }
+    _snapBottomRight()     { this._snap(1/2, 1/2, 1/2, 1/2); }
 
     _snapMaximize() {
         const win = this._win();
@@ -352,12 +358,18 @@ export default class SnapLayoutExtension extends Extension {
         const map = [
             ['snap-left-half',        () => this._snapLeftHalf()],
             ['snap-right-half',       () => this._snapRightHalf()],
+            ['snap-top-half',         () => this._snapTopHalf()],
+            ['snap-bottom-half',      () => this._snapBottomHalf()],
             ['snap-maximize',         () => this._snapMaximize()],
             ['snap-restore',          () => this._snapRestore()],
             ['snap-left-third',       () => this._snapLeftThird()],
             ['snap-right-third',      () => this._snapRightThird()],
             ['snap-left-two-thirds',  () => this._snapLeftTwoThirds()],
             ['snap-right-two-thirds', () => this._snapRightTwoThirds()],
+            ['snap-top-left',         () => this._snapTopLeft()],
+            ['snap-top-right',        () => this._snapTopRight()],
+            ['snap-bottom-left',      () => this._snapBottomLeft()],
+            ['snap-bottom-right',     () => this._snapBottomRight()],
             ['move-monitor-left',     () => this._moveToMonitor('left')],
             ['move-monitor-right',    () => this._moveToMonitor('right')],
             ['focus-monitor-left',    () => this._focusMonitor('left')],

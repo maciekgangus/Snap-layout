@@ -23,12 +23,18 @@ Compatible with GNOME Shell 45–49 on Wayland and X11.
 |---|---|
 | Left half | `Super + ←` |
 | Right half | `Super + →` |
+| Top half | `Super + Alt + ↑` |
+| Bottom half | `Super + Alt + ↓` |
 | Maximize | `Super + ↑` |
 | Restore | `Super + ↓` |
 | Left 1/3 | `Super + Alt + ←` |
 | Right 1/3 | `Super + Alt + →` |
 | Left 2/3 | `Super + Ctrl + ←` |
 | Right 2/3 | `Super + Ctrl + →` |
+| Top-left quarter | *(unbound — set in prefs)* |
+| Top-right quarter | *(unbound — set in prefs)* |
+| Bottom-left quarter | *(unbound — set in prefs)* |
+| Bottom-right quarter | *(unbound — set in prefs)* |
 | Move to left monitor | `Super + Shift + ←` |
 | Move to right monitor | `Super + Shift + →` |
 | Focus left monitor | `Super + Shift + Alt + ←` |

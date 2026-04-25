@@ -11,6 +11,30 @@
       <default><![CDATA[['<Super>Right']]]></default>
       <summary>Snap: right half</summary>
     </key>
+    <key name="snap-top-half" type="as">
+      <default><![CDATA[['<Super><Alt>Up']]]></default>
+      <summary>Snap: top half</summary>
+    </key>
+    <key name="snap-bottom-half" type="as">
+      <default><![CDATA[['<Super><Alt>Down']]]></default>
+      <summary>Snap: bottom half</summary>
+    </key>
+    <key name="snap-top-left" type="as">
+      <default>[]</default>
+      <summary>Snap: top-left quarter</summary>
+    </key>
+    <key name="snap-top-right" type="as">
+      <default>[]</default>
+      <summary>Snap: top-right quarter</summary>
+    </key>
+    <key name="snap-bottom-left" type="as">
+      <default>[]</default>
+      <summary>Snap: bottom-left quarter</summary>
+    </key>
+    <key name="snap-bottom-right" type="as">
+      <default>[]</default>
+      <summary>Snap: bottom-right quarter</summary>
+    </key>
     <key name="snap-maximize" type="as">
       <default><![CDATA[['<Super>Up']]]></default>
       <summary>Snap: maximize</summary>

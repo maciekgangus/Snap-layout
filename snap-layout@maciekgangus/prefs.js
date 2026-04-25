@@ -177,10 +177,21 @@ export default class SnapLayoutPreferences extends ExtensionPreferences {
             {
                 title: 'Snap — Halves',
                 rows: [
-                    ['snap-left-half',  'Left half',  'Super + ←'],
-                    ['snap-right-half', 'Right half', 'Super + →'],
-                    ['snap-maximize',   'Maximize',   'Super + ↑'],
-                    ['snap-restore',    'Restore',    'Super + ↓'],
+                    ['snap-left-half',   'Left half',   'Super + ←'],
+                    ['snap-right-half',  'Right half',  'Super + →'],
+                    ['snap-top-half',    'Top half',    'Super + Alt + ↑'],
+                    ['snap-bottom-half', 'Bottom half', 'Super + Alt + ↓'],
+                    ['snap-maximize',    'Maximize',    'Super + ↑'],
+                    ['snap-restore',     'Restore',     'Super + ↓'],
+                ],
+            },
+            {
+                title: 'Snap — Quarters',
+                rows: [
+                    ['snap-top-left',     'Top-left quarter',     '—'],
+                    ['snap-top-right',    'Top-right quarter',    '—'],
+                    ['snap-bottom-left',  'Bottom-left quarter',  '—'],
+                    ['snap-bottom-right', 'Bottom-right quarter', '—'],
                 ],
             },
             {
@@ -228,8 +239,14 @@ export default class SnapLayoutPreferences extends ExtensionPreferences {
         resetBtn.connect('clicked', () => {
             settings.reset('snap-left-half');
             settings.reset('snap-right-half');
+            settings.reset('snap-top-half');
+            settings.reset('snap-bottom-half');
             settings.reset('snap-maximize');
             settings.reset('snap-restore');
+            settings.reset('snap-top-left');
+            settings.reset('snap-top-right');
+            settings.reset('snap-bottom-left');
+            settings.reset('snap-bottom-right');
             settings.reset('snap-left-third');
             settings.reset('snap-right-third');
             settings.reset('snap-left-two-thirds');

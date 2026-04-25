@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.1.0] — 2026-04-25
+
+### Added
+- Snap to top half (`Super + Alt + ↑`) and bottom half (`Super + Alt + ↓`)
+- Snap to four quarters: top-left, top-right, bottom-left, bottom-right (unbound by default)
+- Pop animation (scale-in + fade) on all snap actions, 250ms EASE_OUT_QUAD
+
+### Fixed
+- GSettings signal handler leak in preferences window (use-after-free on repeated open/close)
+- Defensive null guard in linked-resize poll callback
+- Actor cleanup on disable now scoped to extension-touched windows only
+
 ## [1.0.0] — 2026-04-11
 
 ### Added
