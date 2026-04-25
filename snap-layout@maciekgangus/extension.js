@@ -44,6 +44,10 @@ function _isMinimized(win) {
 }
 
 export default class SnapLayoutExtension extends Extension {
+    static _ANIM_DURATION      = 250;
+    static _ANIM_SCALE_START   = 0.88;
+    static _ANIM_OPACITY_START = 220;
+
     enable() {
         this._settings = this.getSettings();
         this._keybindings = [];
@@ -54,6 +58,14 @@ export default class SnapLayoutExtension extends Extension {
     disable() {
         this._unbindKeys();
         this._teardownLinkedResize();
+        for (const win of global.display.list_all_windows()) {
+            const actor = win.get_compositor_private();
+            if (actor) {
+                actor.remove_all_transitions();
+                actor.set_scale(1, 1);
+                actor.opacity = 255;
+            }
+        }
         this._settings = null;
     }
 
@@ -88,6 +100,36 @@ export default class SnapLayoutExtension extends Extension {
             Math.round(wa.width  * wFrac),
             Math.round(wa.height * hFrac),
         );
+
+        this._animateSnap(win);
+    }
+
+    _animateSnap(win) {
+        const actor = win.get_compositor_private();
+        if (!actor) return;
+
+        // If already mid-animation, start from the current scale for smooth chaining.
+        // If at rest (scale=1), start the full pop effect from _ANIM_SCALE_START.
+        const wasAnimating = actor.scale_x < 0.999;
+
+        actor.remove_all_transitions();
+        actor.set_pivot_point(0.5, 0.5);
+
+        if (!wasAnimating) {
+            actor.set_scale(
+                SnapLayoutExtension._ANIM_SCALE_START,
+                SnapLayoutExtension._ANIM_SCALE_START,
+            );
+            actor.opacity = SnapLayoutExtension._ANIM_OPACITY_START;
+        }
+
+        actor.ease({
+            scale_x:  1.0,
+            scale_y:  1.0,
+            opacity:  255,
+            duration: SnapLayoutExtension._ANIM_DURATION,
+            mode:     Clutter.AnimationMode.EASE_OUT_QUAD,
+        });
     }
 
     // ── Snap actions ────────────────────────────────────────────────────────
