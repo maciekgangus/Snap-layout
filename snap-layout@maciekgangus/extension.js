@@ -236,7 +236,8 @@ export default class SnapLayoutExtension extends Extension {
     }
 
     _saveLayout(slot) {
-        const mon = global.display.get_current_monitor();
+        // Prefer the focused window's monitor; fall back to pointer position.
+        const mon = this._win()?.get_monitor() ?? global.display.get_current_monitor();
         const ws  = global.display.get_workspace_manager().get_active_workspace();
         const wa  = ws.get_work_area_for_monitor(mon);
 
@@ -259,13 +260,13 @@ export default class SnapLayoutExtension extends Extension {
         Main.osdWindowManager.show(
             mon,
             Gio.ThemedIcon.new('view-grid-symbolic'),
-            `Layout ${slot} saved  (${n} window${n !== 1 ? 's' : ''})`,
+            `Layout ${slot} saved (${n} window${n !== 1 ? 's' : ''})`,
             -1,
         );
     }
 
     _restoreLayout(slot) {
-        const mon = global.display.get_current_monitor();
+        const mon = this._win()?.get_monitor() ?? global.display.get_current_monitor();
         const all = this._loadLayouts();
         const saved = all[this._monitorKey(mon)]?.[slot];
 
@@ -310,10 +311,20 @@ export default class SnapLayoutExtension extends Extension {
             this._animateSnap(best);
         }
 
+        if (matched.size === 0) {
+            Main.osdWindowManager.show(
+                mon,
+                Gio.ThemedIcon.new('action-unavailable-symbolic'),
+                `Layout ${slot} — no windows to arrange`,
+                -1,
+            );
+            return;
+        }
+
         Main.osdWindowManager.show(
             mon,
             Gio.ThemedIcon.new('view-grid-symbolic'),
-            `Layout ${slot} restored`,
+            `Layout ${slot} restored (${matched.size}/${saved.length})`,
             -1,
         );
     }

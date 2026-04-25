@@ -188,10 +188,10 @@ export default class SnapLayoutPreferences extends ExtensionPreferences {
             {
                 title: 'Snap — Quarters',
                 rows: [
-                    ['snap-top-left',     'Top-left quarter',     '—'],
-                    ['snap-top-right',    'Top-right quarter',    '—'],
-                    ['snap-bottom-left',  'Bottom-left quarter',  '—'],
-                    ['snap-bottom-right', 'Bottom-right quarter', '—'],
+                    ['snap-top-left',     'Top-left quarter',     'Unbound'],
+                    ['snap-top-right',    'Top-right quarter',    'Unbound'],
+                    ['snap-bottom-left',  'Bottom-left quarter',  'Unbound'],
+                    ['snap-bottom-right', 'Bottom-right quarter', 'Unbound'],
                 ],
             },
             {
