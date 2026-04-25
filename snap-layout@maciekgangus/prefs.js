@@ -33,8 +33,14 @@ class ShortcutRow extends Adw.ActionRow {
         this._syncLabel();
         this.add_suffix(this._label);
 
-        // Watch settings changes (e.g. reset from terminal)
+        // Watch settings changes (e.g. reset from terminal).
+        // Disconnect on destroy — settings outlives the widget and the closure
+        // captures this, so leaving it connected causes use-after-free errors.
         this._changedId = settings.connect(`changed::${key}`, () => this._syncLabel());
+        this.connect('destroy', () => {
+            settings.disconnect(this._changedId);
+            this._changedId = null;
+        });
 
         // Click row → open capture dialog
         this.connect('activated', () => this._capture());

@@ -51,6 +51,7 @@ export default class SnapLayoutExtension extends Extension {
     enable() {
         this._settings = this.getSettings();
         this._keybindings = [];
+        this._animatedActors = new Set();
         this._bindKeys();
         this._setupLinkedResize();
     }
@@ -58,14 +59,16 @@ export default class SnapLayoutExtension extends Extension {
     disable() {
         this._unbindKeys();
         this._teardownLinkedResize();
-        for (const win of global.display.list_all_windows()) {
-            const actor = win.get_compositor_private();
-            if (actor) {
+        for (const actor of this._animatedActors) {
+            try {
                 actor.remove_all_transitions();
                 actor.set_scale(1, 1);
                 actor.opacity = 255;
+            } catch (_) {
+                // actor was finalized (window closed during animation)
             }
         }
+        this._animatedActors = null;
         this._settings = null;
     }
 
@@ -123,12 +126,14 @@ export default class SnapLayoutExtension extends Extension {
             actor.opacity = SnapLayoutExtension._ANIM_OPACITY_START;
         }
 
+        this._animatedActors.add(actor);
         actor.ease({
             scale_x:  1.0,
             scale_y:  1.0,
             opacity:  255,
             duration: SnapLayoutExtension._ANIM_DURATION,
             mode:     Clutter.AnimationMode.EASE_OUT_QUAD,
+            onComplete: () => this._animatedActors?.delete(actor),
         });
     }
 
@@ -276,6 +281,7 @@ export default class SnapLayoutExtension extends Extension {
     }
 
     _pollResize() {
+        if (!this._activeLink) return;
         const { win, neighbor, neighborSide } = this._activeLink;
 
         const r       = win.get_frame_rect();
