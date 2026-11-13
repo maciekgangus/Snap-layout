@@ -42,11 +42,23 @@ journalctl -f /usr/bin/gnome-shell | grep -i "snap\|Error"
 
 ## Architecture
 
-There are only two JS files:
+There is no build step, linter, or test suite — verify changes by installing and exercising the extension in a live GNOME session. Per extension there are two JS files:
 
 - **`extension.js`** — `SnapLayoutExtension` class (extends `Extension`). Registers/unregisters all keybindings in `enable()`/`disable()`. The `_snap(xFrac, yFrac, wFrac, hFrac)` method is the single resizing primitive — all snap actions are one-liner wrappers calling it with the appropriate fractions. Monitor actions use `Meta.Window.move_to_monitor()` and `Clutter.Seat.warp_pointer()`.
 
 - **`prefs.js`** — `SnapLayoutPreferences` class (extends `ExtensionPreferences`). GTK4 + Libadwaita UI. `ShortcutRow` is a custom `Adw.ActionRow` that shows the current binding and opens `ShortcutCaptureDialog` on click. The capture dialog uses `Gtk.EventControllerKey` to intercept the key press and writes the accelerator string back to GSettings.
+
+Beyond the snap primitives, `extension.js` also contains three stateful subsystems that span several methods:
+
+- **Cycle snapping** (`_cycleSnap`, `_CYCLE_LEFT/_RIGHT`, `_SNAP_FRACS`): when the `cycle-snapping` setting is on, repeating left/right half cycles half → third → two-thirds. `_snap(..., historyKey)` records the last snap per window in `_snapHistory`; direct third/two-thirds shortcuts also pass a key so cycling continues from the current position.
+- **Layout save/restore** (`_saveLayout`/`_restoreLayout`/`_loadLayouts`): 3 slots per monitor, serialized as JSON into the `layouts` GSettings string key (keyed via `_monitorKey`).
+- **Linked resize** (`_setupLinkedResize`, `_onGrabBegin/_onGrabEnd`, `_pollResize`, `_findNeighbor`): connects to `grab-op-begin/end` on `global.display`; while a window edge is dragged it polls and resizes the adjacent snapped neighbor. Must be torn down in `_teardownLinkedResize()` on `disable()`.
+
+Snap gap and the center-size percentages come from settings (`snap-gap`, `center-width-pct`, `center-height-pct`).
+
+## Test extension (`snap-layout-test@maciekgangus/`)
+
+A full copy of the extension with its own UUID (`snap-layout-test@maciekgangus`), schema id (`org.gnome.shell.extensions.snap-layout-test`) and schema file, so it can be installed side by side with the real one. It is the sandbox for experimental changes and **must not be submitted to EGO**. It is not kept in sync automatically (e.g. it currently lacks `snap-center`), so port changes manually if needed. Install with `./install-test.sh` (then `gnome-extensions enable snap-layout-test@maciekgangus`); `install.sh` only installs the main extension.
 
 ## GSettings Schema
 
