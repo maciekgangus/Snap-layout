@@ -112,12 +112,13 @@ export default class SnapLayoutExtension extends Extension {
             _unmaximize(win);
 
         const wa = win.get_work_area_current_monitor();
+        const g  = this._settings.get_int('snap-gap');
         win.move_resize_frame(
             false,                               // user_op=false → programmatic, no interactive constraints
-            wa.x + Math.round(wa.width  * xFrac),
-            wa.y + Math.round(wa.height * yFrac),
-            Math.round(wa.width  * wFrac),
-            Math.round(wa.height * hFrac),
+            wa.x + Math.round(wa.width  * xFrac) + g,
+            wa.y + Math.round(wa.height * yFrac) + g,
+            Math.round(wa.width  * wFrac) - 2 * g,
+            Math.round(wa.height * hFrac) - 2 * g,
         );
 
         if (historyKey)
@@ -212,12 +213,16 @@ export default class SnapLayoutExtension extends Extension {
     _snapRestore() {
         const win = this._win();
         if (!win) return;
-        if (_isMaximized(win)) {
+        if (_isMaximized(win))
             _unmaximize(win);
-        } else {
-            // Not maximized → snap to a comfortable centred size
+        else
             this._snap(0.2, 0.1, 0.6, 0.8);
-        }
+    }
+
+    _snapCenter() {
+        const wp = this._settings.get_int('center-width-pct')  / 100;
+        const hp = this._settings.get_int('center-height-pct') / 100;
+        this._snap((1 - wp) / 2, (1 - hp) / 2, wp, hp);
     }
 
     // ── Layout save / restore ───────────────────────────────────────────────
@@ -526,6 +531,7 @@ export default class SnapLayoutExtension extends Extension {
             ['snap-right-third',      () => this._snapRightThird()],
             ['snap-left-two-thirds',  () => this._snapLeftTwoThirds()],
             ['snap-right-two-thirds', () => this._snapRightTwoThirds()],
+            ['snap-center',           () => this._snapCenter()],
             ['snap-top-left',         () => this._snapTopLeft()],
             ['snap-top-right',        () => this._snapTopRight()],
             ['snap-bottom-left',      () => this._snapBottomLeft()],
