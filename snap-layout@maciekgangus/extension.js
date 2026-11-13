@@ -373,7 +373,10 @@ export default class SnapLayoutExtension extends Extension {
         const cx   = geom.x + Math.round(geom.width  / 2);
         const cy   = geom.y + Math.round(geom.height / 2);
 
-        Clutter.get_default_backend().get_default_seat().warp_pointer(cx, cy);
+        // Clutter.get_default_backend() was removed in GNOME 51; the stage
+        // context API replaces it (available since GNOME 47).
+        const backend = global.stage.context?.get_backend?.() ?? Clutter.get_default_backend();
+        backend.get_default_seat().warp_pointer(cx, cy);
     }
 
     // ── Linked resize ───────────────────────────────────────────────────────
