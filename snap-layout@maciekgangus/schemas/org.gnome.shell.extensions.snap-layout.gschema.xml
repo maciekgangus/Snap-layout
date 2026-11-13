@@ -76,6 +76,27 @@
       <summary>Focus right monitor</summary>
     </key>
 
+    <key name="snap-center" type="as">
+      <default><![CDATA[['<Super>c']]]></default>
+      <summary>Snap: center float</summary>
+    </key>
+    <key name="center-width-pct" type="i">
+      <default>60</default>
+      <range min="10" max="100"/>
+      <summary>Center float width as % of work area</summary>
+    </key>
+    <key name="center-height-pct" type="i">
+      <default>80</default>
+      <range min="10" max="100"/>
+      <summary>Center float height as % of work area</summary>
+    </key>
+
+    <key name="snap-gap" type="i">
+      <default>0</default>
+      <range min="0" max="100"/>
+      <summary>Gap between snapped windows and screen edges (pixels)</summary>
+    </key>
+
     <key name="cycle-snapping" type="b">
       <default>false</default>
       <summary>Cycle snap positions</summary>

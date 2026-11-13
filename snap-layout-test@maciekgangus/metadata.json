@@ -1,0 +1,9 @@
+{
+  "name": "Snap Layout (TEST)",
+  "description": "Development/test build of Snap Layout. Do not submit to EGO.",
+  "uuid": "snap-layout-test@maciekgangus",
+  "version": 99,
+  "shell-version": ["45", "46", "47", "48", "49", "50", "51"],
+  "url": "https://github.com/maciekgangus/Snap-layout",
+  "settings-schema": "org.gnome.shell.extensions.snap-layout-test"
+}

@@ -172,6 +172,20 @@ export default class SnapLayoutPreferences extends ExtensionPreferences {
         });
         window.add(page);
 
+        // ── Appearance ──────────────────────────────────────────────────────
+        const appearanceGroup = new Adw.PreferencesGroup({ title: 'Appearance' });
+        page.add(appearanceGroup);
+
+        const gapRow = new Adw.SpinRow({
+            title:    'Window gap',
+            subtitle: 'Pixels between snapped windows and screen edges',
+            adjustment: new Gtk.Adjustment({
+                lower: 0, upper: 100, step_increment: 1, page_increment: 4,
+            }),
+        });
+        settings.bind('snap-gap', gapRow, 'value', Gio.SettingsBindFlags.DEFAULT);
+        appearanceGroup.add(gapRow);
+
         // ── Groups ──────────────────────────────────────────────────────────
         const groups = [
             {
@@ -222,6 +236,32 @@ export default class SnapLayoutPreferences extends ExtensionPreferences {
                 group.add(new ShortcutRow(settings, key, label, `Default: ${hint}`));
             }
         }
+
+        // ── Center Float ─────────────────────────────────────────────────────
+        const centerGroup = new Adw.PreferencesGroup({ title: 'Snap — Center Float' });
+        page.add(centerGroup);
+
+        centerGroup.add(new ShortcutRow(settings, 'snap-center', 'Center float', 'Default: Super + C'));
+
+        const centerWidthRow = new Adw.SpinRow({
+            title: 'Width',
+            subtitle: '% of work area',
+            adjustment: new Gtk.Adjustment({
+                lower: 10, upper: 100, step_increment: 5, page_increment: 10,
+            }),
+        });
+        settings.bind('center-width-pct', centerWidthRow, 'value', Gio.SettingsBindFlags.DEFAULT);
+        centerGroup.add(centerWidthRow);
+
+        const centerHeightRow = new Adw.SpinRow({
+            title: 'Height',
+            subtitle: '% of work area',
+            adjustment: new Gtk.Adjustment({
+                lower: 10, upper: 100, step_increment: 5, page_increment: 10,
+            }),
+        });
+        settings.bind('center-height-pct', centerHeightRow, 'value', Gio.SettingsBindFlags.DEFAULT);
+        centerGroup.add(centerHeightRow);
 
         // ── Layouts ──────────────────────────────────────────────────────────
         const layoutSaveGroup = new Adw.PreferencesGroup({
@@ -276,6 +316,10 @@ export default class SnapLayoutPreferences extends ExtensionPreferences {
             css_classes: ['destructive-action'],
         });
         resetBtn.connect('clicked', () => {
+            settings.reset('snap-gap');
+            settings.reset('snap-center');
+            settings.reset('center-width-pct');
+            settings.reset('center-height-pct');
             settings.reset('snap-left-half');
             settings.reset('snap-right-half');
             settings.reset('snap-top-half');
