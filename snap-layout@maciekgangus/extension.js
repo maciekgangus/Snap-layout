@@ -71,6 +71,9 @@ export default class SnapLayoutExtension extends Extension {
     }
 
     disable() {
+        // enable() may have thrown before setting anything up (e.g. missing schema).
+        if (!this._keybindings)
+            return;
         this._unbindKeys();
         this._teardownLinkedResize();
         for (const actor of this._animatedActors) {
