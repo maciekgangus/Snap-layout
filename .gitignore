@@ -9,3 +9,6 @@ snap-layout@maciek/schemas/gschemas.compiled
 
 # macOS
 .DS_Store
+
+# graphify output (local knowledge graph)
+graphify-out/

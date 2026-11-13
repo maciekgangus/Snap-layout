@@ -56,10 +56,6 @@ Beyond the snap primitives, `extension.js` also contains three stateful subsyste
 
 Snap gap and the center-size percentages come from settings (`snap-gap`, `center-width-pct`, `center-height-pct`).
 
-## Test extension (`snap-layout-test@maciekgangus/`)
-
-A full copy of the extension with its own UUID (`snap-layout-test@maciekgangus`), schema id (`org.gnome.shell.extensions.snap-layout-test`) and schema file, so it can be installed side by side with the real one. It is the sandbox for experimental changes and **must not be submitted to EGO**. It is not kept in sync automatically (e.g. it currently lacks `snap-center`), so port changes manually if needed. Install with `./install-test.sh` (then `gnome-extensions enable snap-layout-test@maciekgangus`); `install.sh` only installs the main extension.
-
 ## GSettings Schema
 
 `org.gnome.shell.extensions.snap-layout.gschema.xml` defines one `as` (string array) key per action. Defaults are the canonical GNOME accelerator strings (e.g. `['<Super>Left']`).
